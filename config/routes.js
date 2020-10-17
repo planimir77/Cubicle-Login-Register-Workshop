@@ -2,6 +2,7 @@ const { getCube, getCubes } = require('../controllers/cube-get');
 const { createCube, updateCube } = require('../controllers/cube-set');
 const createAccessory = require('../controllers/accessory-set');
 const { getAccessories, getAvailableAccessories } = require('../controllers/accessory-get');
+const { register, } = require('../controllers/user')
 
 module.exports = (app) => {
     app.get('/', async function (req, res) {
@@ -62,12 +63,17 @@ module.exports = (app) => {
         res.redirect(`/details/${cubeId}`);
     });
     // ================= User =================
-    app.get('/user/register', async (req, res) => {
+    app.get('/user/register', (req, res) => {
         res.render('register-page', { title: 'Register Form', });
     });
-    app.get('/user/login', async (req, res) => {
+    app.get('/user/login', (req, res) => {
         res.render('login-page', { title: 'Login Form', });
     })
+
+    app.post('/user/register', async (req, res) => {
+        await register(req.body);
+        res.redirect('/user/login');
+    });
 
     // ================ Not found ========================
     app.get('*', function (req, res) {
