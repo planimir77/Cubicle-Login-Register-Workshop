@@ -61,8 +61,15 @@ module.exports = (app) => {
 
         res.redirect(`/details/${cubeId}`);
     });
+    // ================= User =================
+    app.get('/user/register', async (req, res) => {
+        res.render('register-page', { title: 'Register Form', });
+    });
+    app.get('/user/login', async (req, res) => {
+        res.render('login-page', { title: 'Login Form', });
+    })
 
-    // ---------------- Not found ----------------------------
+    // ================ Not found ========================
     app.get('*', function (req, res) {
         res.render('404', { title: "Not found", });
     });
