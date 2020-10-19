@@ -2,7 +2,8 @@ const { getCube, getCubes } = require('../controllers/cube-get');
 const { createCube, updateCube } = require('../controllers/cube-set');
 const createAccessory = require('../controllers/accessory-set');
 const { getAccessories, getAvailableAccessories } = require('../controllers/accessory-get');
-const { register, } = require('../controllers/user')
+const { register, login } = require('../controllers/user')
+const checkAuth = require('../middlewares/check-auth');
 
 module.exports = (app) => {
     app.get('/', async function (req, res) {
@@ -63,16 +64,29 @@ module.exports = (app) => {
         res.redirect(`/details/${cubeId}`);
     });
     // ================= User =================
+    //        Register
     app.get('/user/register', (req, res) => {
         res.render('register-page', { title: 'Register Form', });
     });
+    app.post('/user/register', async (req, res) => {
+
+        const success = await register(req, res);
+
+        if (success) return res.redirect('/user/login');
+
+        res.redirect('/user/register');
+    });
+    //        Login
     app.get('/user/login', (req, res) => {
         res.render('login-page', { title: 'Login Form', });
     })
-
-    app.post('/user/register', async (req, res) => {
-        await register(req.body);
-        res.redirect('/user/login');
+    app.post('/user/login', checkAuth(false), async (req, res, next) => {
+        const success = await login(req, res);
+        if (success) {
+            res.redirect('/');
+        } else {
+            res.render('login-page', { message: 'Wrong username or password', });
+        }
     });
 
     // ================ Not found ========================

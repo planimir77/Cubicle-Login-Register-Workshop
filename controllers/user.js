@@ -1,24 +1,21 @@
 const User = require('../models/User');
 const bcrypt = require('bcrypt');
-const saltRounds = 9;
+const jwt = require('jsonwebtoken');
+const config = require('../config/config');
+const { jwtSecret, authCookieName, saltRounds, } = config;
 
-
-const register = async (requestBody) => {
-    const { username, password, repeatPassword } = requestBody;
+const register = async (req, res) => {
+    const { username, password, repeatPassword } = req.body;
     try {
         if (password === repeatPassword) {
+            const salt = await bcrypt.genSalt(saltRounds);
+            const hash = await bcrypt.hash(password, salt);
 
-            bcrypt.genSalt(saltRounds, (error, salt) => {
-                if (error) throw err;
-                bcrypt.hash(password, salt, async (err, hash) => {
-                    if (err) throw err;
+            const user = new User({ 'username': username, 'password': hash, });
+            const newUser = await user.save();
 
-                    const user = new User({ 'username': username, 'password': hash, });
-                    const result = await user.save();
-                    console.log(result.toObject());
-                });
-            });
-
+            console.log(newUser.toObject());
+            return true;
         } else {
             throw new Error('Invalid data');
         }
@@ -26,6 +23,26 @@ const register = async (requestBody) => {
         console.error('Error : ', error);
     }
 
-}
+};
+const login = async (req, res) => {
+    try {
+        const { username, password } = req.body;
 
-module.exports = { register, };
+        const user = await User.findOne({ username, });
+
+        const success = await bcrypt.compareSync(password, user.password);
+        if (success) {
+
+            const token = await jwt.sign({ userId: user._id, }, jwtSecret);
+            res.cookie(authCookieName, token, { httpOnly: true, });
+
+            return success;
+        }
+        return false;
+
+    } catch (error) {
+        console.error("Error: ", error);
+    }
+};
+
+module.exports = { register, login, };
