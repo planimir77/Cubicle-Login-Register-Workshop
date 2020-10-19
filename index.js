@@ -1,12 +1,9 @@
-const env = process.env.NODE_ENV || 'development';
-
-const config = require('./config/config')[env];
+const config = require('./config/config');
 const express = require('express');
 const app = require('express')();
-const connectionStr = process.env.SoftuniDb;
 const mongoose = require('mongoose');
 
-mongoose.connect(connectionStr,
+mongoose.connect(config.dbConnectionString,
     { useNewUrlParser: true, useUnifiedTopology: true, },
     (err) => {
         if(err) console.log(err);
