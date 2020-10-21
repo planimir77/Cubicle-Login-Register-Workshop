@@ -34,6 +34,12 @@ module.exports = (app) => {
         res.redirect('/');
     });
 
+    app.get('/edit/:id', checkAuth(true),async (req, res) => {
+        const cubeId = req.params.id;
+        const cube = await getCube(cubeId);
+        res.render('edit-cube', { title: "Edit Cube Page", ...cube, });
+    });
+
     // ==================== Accessory ========================
     app.get('/create/accessory', checkAuth(true), (req, res) => {
         res.render('create-accessory', { title: "Create accessory", });
