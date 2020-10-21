@@ -6,17 +6,17 @@ const { register, login , logout} = require('../controllers/user')
 const checkAuth = require('../middlewares/check-auth');
 
 module.exports = (app) => {
-    app.get('/', async function (req, res) {
+    app.get('/', async (req, res) => {
         const query = req.query;
         const cubes = await getCubes(query);
         res.render('index', { title: "Home page", cubes: cubes, });
     });
 
-    app.get('/about', function (req, res) {
+    app.get('/about', (req, res) => {
         res.render('about', { title: "About page", });
     });
 
-    app.get('/details/:id', async function (req, res) {
+    app.get('/details/:id', async (req, res) => {
         const cubeId = req.params.id;
         const cube = await getCube(cubeId);
         const accessories = await getAccessories(cubeId);
@@ -24,35 +24,35 @@ module.exports = (app) => {
     });
 
     // =================== Cube ==============================
-    app.get('/create', function (req, res) {
+    app.get('/create', checkAuth(true), (req, res) => {
         res.render('create', { title: "Create page", });
     });
 
-    app.post('/create', async function (req, res) {
+    app.post('/create', checkAuth(true), async (req, res) => {
         const entry = req.body;
         await createCube(entry);
         res.redirect('/');
     });
 
     // ==================== Accessory ========================
-    app.get('/create/accessory', function (req, res) {
+    app.get('/create/accessory', checkAuth(true), (req, res) => {
         res.render('create-accessory', { title: "Create accessory", });
     });
 
-    app.post('/create/accessory', async function (req, res) {
+    app.post('/create/accessory', checkAuth(true), async (req, res) => {
         const entry = req.body;
         await createAccessory(entry);
         res.redirect('/');
     });
 
-    app.get('/attach/accessory/:id', async function (req, res) {
+    app.get('/attach/accessory/:id', checkAuth(true), async (req, res) => {
         const cubeId = req.params.id;
         const cube = await getCube(cubeId);
         const accessories = await getAvailableAccessories(cubeId);
         res.render('attach-accessory', { title: "Attach accessory", ...cube, accessories, });
     });
 
-    app.post('/attach/accessory/:id', async function (req, res) {
+    app.post('/attach/accessory/:id', checkAuth(true), async (req, res) => {
         const cubeId = req.params.id;
         const { accessory } = req.body;
 
@@ -65,10 +65,10 @@ module.exports = (app) => {
     });
     // ================= User =================
     //        Register
-    app.get('/user/register', (req, res) => {
+    app.get('/user/register', checkAuth(false), (req, res) => {
         res.render('register-page', { title: 'Register Form', });
     });
-    app.post('/user/register', async (req, res) => {
+    app.post('/user/register', checkAuth(false), async (req, res) => {
 
         const success = await register(req, res);
 
@@ -77,7 +77,7 @@ module.exports = (app) => {
         res.redirect('/user/register');
     });
     //        Login
-    app.get('/user/login', (req, res) => {
+    app.get('/user/login', checkAuth(false), (req, res) => {
         res.render('login-page', { title: 'Login Form', });
     })
     app.post('/user/login', checkAuth(false), async (req, res, next) => {
@@ -89,14 +89,14 @@ module.exports = (app) => {
         }
     });
     //         Logout
-    app.get('/logout', (req, res) => {
-        
+    app.get('/logout', checkAuth(true), (req, res) => {
+
         logout(req, res);
         res.redirect('/');
     });
 
     // ================ Not found ========================
-    app.get('*', function (req, res) {
+    app.get('*', (req, res) => {
         res.render('404', { title: "Not found", });
     });
 };
