@@ -44,5 +44,8 @@ const login = async (req, res) => {
         console.error("Error: ", error);
     }
 };
+const logout = (req, res) => {
+    res.clearCookie(authCookieName);
+}
 
-module.exports = { register, login, };
+module.exports = { register, login, logout, };

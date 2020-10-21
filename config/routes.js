@@ -2,7 +2,7 @@ const { getCube, getCubes } = require('../controllers/cube-get');
 const { createCube, updateCube } = require('../controllers/cube-set');
 const createAccessory = require('../controllers/accessory-set');
 const { getAccessories, getAvailableAccessories } = require('../controllers/accessory-get');
-const { register, login } = require('../controllers/user')
+const { register, login , logout} = require('../controllers/user')
 const checkAuth = require('../middlewares/check-auth');
 
 module.exports = (app) => {
@@ -87,6 +87,12 @@ module.exports = (app) => {
         } else {
             res.render('login-page', { message: 'Wrong username or password', });
         }
+    });
+    //         Logout
+    app.get('/logout', (req, res) => {
+        
+        logout(req, res);
+        res.redirect('/');
     });
 
     // ================ Not found ========================
