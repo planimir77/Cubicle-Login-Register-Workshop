@@ -1,8 +1,8 @@
 const { getCube, getCubes } = require('../controllers/cube-get');
-const { createCube, updateCube } = require('../controllers/cube-set');
+const { createCube, attachAccessory, updateCube } = require('../controllers/cube-set');
 const createAccessory = require('../controllers/accessory-set');
 const { getAccessories, getAvailableAccessories } = require('../controllers/accessory-get');
-const { register, login , logout} = require('../controllers/user')
+const { register, login, logout } = require('../controllers/user')
 const checkAuth = require('../middlewares/check-auth');
 
 module.exports = (app) => {
@@ -34,10 +34,17 @@ module.exports = (app) => {
         res.redirect('/');
     });
 
-    app.get('/edit/:id', checkAuth(true),async (req, res) => {
+    app.get('/edit/:id', checkAuth(true), async (req, res) => {
         const cubeId = req.params.id;
         const cube = await getCube(cubeId);
         res.render('edit-cube', { title: "Edit Cube Page", ...cube, });
+    });
+
+    app.post('/edit/:id', async (req, res) => {
+        const cubeId = req.params.id;
+        const data = req.body;
+        await updateCube(cubeId, data);
+        res.redirect(`/details/${cubeId}`)
     });
 
     // ==================== Accessory ========================
@@ -62,10 +69,7 @@ module.exports = (app) => {
         const cubeId = req.params.id;
         const { accessory } = req.body;
 
-        await updateCube(cubeId, accessory);
-
-        const cube = await getCube(cubeId);
-        const accessories = await getAccessories(cubeId);
+        await attachAccessory(cubeId, accessory);
 
         res.redirect(`/details/${cubeId}`);
     });

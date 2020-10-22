@@ -12,7 +12,7 @@ const createCube = async (entry) => {
 
         const cube = await newCube.save();
         //when success it print.
-        console.log(cube.toObject());
+        console.log(JSON.stringify(cube));
 
     } catch (error) {
         console.error("Error: ", error.message);
@@ -23,18 +23,29 @@ const createCube = async (entry) => {
     // cube.save();
 };
 
-const updateCube = async (cubeId, accessoryId) => {
+const attachAccessory = async (cubeId, accessoryId) => {
     try {
         await Cube.findByIdAndUpdate(cubeId, {
             $push: { accessories: accessoryId, },
         });
         await Accessory.findByIdAndUpdate(accessoryId, {
-            $push: {cubes: cubeId,},
+            $push: { cubes: cubeId, },
         });
-        
+
     } catch (error) {
         console.error('Error: ' + error);
     }
 }
 
-module.exports = { createCube, updateCube, };
+const updateCube = async (cubeId, data) => {
+    try {
+        const result = await Cube.updateOne({ _id: cubeId, }, { ...data, });
+
+        console.log(JSON.stringify(result));
+
+    } catch (error) {
+        console.error('Error: ' + error);
+    }
+}
+
+module.exports = { createCube, attachAccessory, updateCube, };
